@@ -1,0 +1,28 @@
+{
+  "name": "Henrico Campos",
+  "url": "https://writer-henrico.github.io",
+  "base": "/henrico-site/",
+  "tagline": {
+    "pt": "Mistério, memória e escolhas que custam alguma coisa.",
+    "en": "Mystery, memory and the choices that cost something."
+  },
+  "subtitle": {
+    "pt": "Histórias de Henrico Campos, para ler online.",
+    "en": "Stories by Henrico Campos, to read online."
+  },
+  "footer": {
+    "pt": "Histórias, mundos e coisas que ficaram.",
+    "en": "Stories, worlds and things that stayed."
+  },
+  "photo": "",
+  "ogImage": "",
+  "socials": [
+    { "name": "Instagram", "url": "" },
+    { "name": "TikTok", "url": "" },
+    { "name": "Threads", "url": "" },
+    { "name": "X", "url": "" },
+    { "name": "Goodreads", "url": "" },
+    { "name": "Amazon", "url": "" }
+  ],
+  "newsletter": { "action": "", "field": "email" }
+}
