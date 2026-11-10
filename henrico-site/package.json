@@ -1,8 +1,0 @@
-{
-  "name": "henrico-site",
-  "private": true,
-  "version": "1.0.0",
-  "description": "Site de histórias de Henrico Campos",
-  "scripts": { "build": "node build.js" },
-  "engines": { "node": ">=20" }
-}
