@@ -5,7 +5,7 @@
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
   var FONTS = {
     "Fraunces": "'Fraunces',Georgia,serif", "Cormorant Garamond": "'Cormorant Garamond',Georgia,serif",
-    "Spectral": "'Spectral',Georgia,serif", "Jost": "'Jost',system-ui,sans-serif", "Literata": "'Literata',Georgia,serif"
+    "Spectral": "'Spectral',Georgia,serif", "Jost": "'Jost',system-ui,sans-serif", "Literata": "'Literata',Georgia,serif", "Figtree": "'Figtree',system-ui,sans-serif"
   };
   function get(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }
   function put(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -31,6 +31,7 @@
     var sz = get("hc-size", ""); if (sz) H.style.setProperty("--rs", sz + "px");
     var o = allOv()[slug] || {};
     if (o.f && FONTS[o.f]) H.style.setProperty("--serif", FONTS[o.f]);
+    if (o.b && FONTS[o.b]) H.style.setProperty("--body", FONTS[o.b]);
     ["d", "l"].forEach(function (p) {
       var x = o[p] || {};
       if (x.bg) {
@@ -50,13 +51,23 @@
     var box = $("#cust"); if (!box) return;
     box.hidden = false;
     var m = H.dataset.mode === "light" ? "l" : "d", o = allOv()[slug] || {}, cs = getComputedStyle(H);
-    var cur = o.f || Object.keys(FONTS).filter(function (k) { return cs.getPropertyValue("--serif").indexOf(FONTS[k].split(",")[0]) > -1; })[0];
-    $("#cf").innerHTML = Object.keys(FONTS).map(function (k) { return '<option value="' + k + '"' + (k === cur ? " selected" : "") + ">" + k + "</option>"; }).join("");
+    var norm = function (t) { return String(t).replace(/["']/g, ""); };
+    function current(prop, saved) {
+      if (saved) return saved;
+      var v = norm(cs.getPropertyValue(prop));
+      return Object.keys(FONTS).filter(function (k) { return v.indexOf(norm(FONTS[k].split(",")[0])) > -1; })[0];
+    }
+    function fill(sel, cur) {
+      sel.innerHTML = Object.keys(FONTS).map(function (k) { return '<option value="' + k + '"' + (k === cur ? " selected" : "") + ">" + k + "</option>"; }).join("");
+    }
+    fill($("#cf"), current("--serif", o.f));
+    fill($("#cf2"), current("--body", o.b));
     $("#cb").value = hex(cs.getPropertyValue("--" + m + "-bg").trim());
     $("#ca").value = hex(cs.getPropertyValue("--" + m + "-ac").trim());
     $("#cs").checked = parseFloat(cs.getPropertyValue("--d-st")) > 0;
     function set(fn) { var a = allOv(), x = a[slug] || {}; fn(x); a[slug] = x; put("hc-ov", JSON.stringify(a)); applyOv(); }
     $("#cf").onchange = function () { var v = this.value; set(function (x) { x.f = v; }); };
+    $("#cf2").onchange = function () { var v = this.value; set(function (x) { x.b = v; }); };
     $("#cb").oninput = function () { var v = this.value; set(function (x) { x[m] = x[m] || {}; x[m].bg = v; }); };
     $("#ca").oninput = function () { var v = this.value; set(function (x) { x[m] = x[m] || {}; x[m].ac = v; }); };
     $("#cs").onchange = function () { var v = this.checked ? 0.85 : 0; set(function (x) { x.st = v; }); };

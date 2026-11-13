@@ -13,7 +13,7 @@
   --d-bg:#070b26;--d-bg2:#171d55;--d-ink:#f2efe9;--d-mu:#aab0d0;--d-ac:#f2b365;--d-on:#14121f;--d-st:.85;
   --l-bg:#f5ecd6;--l-bg2:#e9dcbc;--l-ink:#1c2252;--l-mu:#5b6088;--l-ac:#a8661a;--l-on:#ffffff;--l-st:0;
   --serif:"Fraunces",Georgia,"Times New Roman",serif;--sans:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --rs:20px;
+  --rs:20px;--body:'Literata',Georgia,serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
   transition:--sky1 .7s ease,--sky2 .7s ease,--ink .7s ease,--muted .7s ease,--gold .7s ease,--onacc .7s ease,--st .7s ease;
 }
@@ -75,7 +75,7 @@ h2{font:600 26px/1.2 var(--serif);margin:0 0 6px}
 .browse a{display:block;padding:26px;border:1px solid var(--line);border-radius:6px;text-decoration:none;background:var(--panel)}
 .browse a:hover{border-color:var(--gold)}
 .browse strong{display:block;font:600 30px/1.1 var(--serif);margin-bottom:6px}
-.browse span{color:var(--muted);font-size:16px}
+.browse a>span{color:var(--muted);font-size:16px}
 
 /* listas (Livros / One-shots) */
 .list{margin-top:26px;border-top:1px solid var(--line)}
@@ -106,7 +106,7 @@ html[data-mode="dark"] .to-dark,html[data-mode="light"] .to-light{display:none}
 .kicker{color:var(--muted);font-size:15px;margin:0 0 8px}
 .reader h1{font:600 clamp(30px,5vw,44px)/1.15 var(--serif);margin:0 0 34px}
 .caps{text-transform:uppercase;letter-spacing:.07em}
-.txt p{font:400 var(--rs)/1.85 "Literata",Georgia,serif;margin:0 0 1.05em}
+.txt p{font:400 var(--rs)/1.85 var(--body);margin:0 0 1.05em}
 .txt .brk{text-align:center;color:var(--gold);margin:1.8em 0}
 .note{border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--muted)}
 .pn{display:flex;justify-content:space-between;gap:12px;margin-top:44px}
@@ -128,6 +128,13 @@ footer small{grid-column:1;grid-row:2;font:400 14px var(--sans);font-style:norma
 footer .soc{grid-column:2;grid-row:1 / span 2;text-align:right}
 .ab .soc a{margin:0 18px 0 0}
 
+/* por onde começar: duas caixas lado a lado */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.feature.pick{grid-template-columns:110px 1fr;gap:20px;padding:22px}
+.pick .cover{font-size:34px}
+.pick h3{font-size:clamp(22px,2.6vw,28px)}
+.pick .tagline{color:var(--gold);font-size:15px;margin:0 0 8px}
+
 /* avisos e painel "Personalizar" (para o leitor) */
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:5;background:var(--ink);color:var(--sky1);padding:10px 18px;border-radius:99px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
 #toast.on{opacity:1}
@@ -138,6 +145,7 @@ footer .soc{grid-column:2;grid-row:1 / span 2;text-align:right}
 #cust select,#cust button{font:inherit;color:var(--ink);background:var(--sky1);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 #cust input[type=color]{width:44px;height:28px;border:0;background:none;padding:0}
 
+@media (max-width:900px){.duo{grid-template-columns:1fr}}
 @media (max-width:700px){
   nav a{padding:8px 8px}.brand{font-size:18px}.lang{margin-left:6px}
   .feature{grid-template-columns:96px 1fr;gap:18px;padding:18px}.feature .cover{font-size:32px}

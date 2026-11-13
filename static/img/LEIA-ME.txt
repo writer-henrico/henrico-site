@@ -1,0 +1,2 @@
+Coloque aqui a sua foto (ex.: autor.jpg) e a imagem de pre-visualizacao dos links (ex.: og.png, 1200x630).
+Depois indique o nome em site.json (campos "photo" e "ogImage"), por exemplo "img/autor.jpg".

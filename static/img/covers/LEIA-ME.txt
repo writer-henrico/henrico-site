@@ -1,0 +1,2 @@
+Coloque aqui as capas, uma por historia (ex.: o-quarto.jpg), em formato vertical 2:3 (ex.: 800x1200).
+Depois, no index.md da historia, escreva: cover: img/covers/o-quarto.jpg

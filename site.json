@@ -17,12 +17,49 @@
   "photo": "",
   "ogImage": "",
   "socials": [
-    { "name": "Instagram", "url": "" },
-    { "name": "TikTok", "url": "" },
-    { "name": "Threads", "url": "" },
-    { "name": "X", "url": "" },
-    { "name": "Goodreads", "url": "" },
-    { "name": "Amazon", "url": "" }
+    {
+      "name": "Instagram",
+      "url": ""
+    },
+    {
+      "name": "TikTok",
+      "url": ""
+    },
+    {
+      "name": "Threads",
+      "url": ""
+    },
+    {
+      "name": "X",
+      "url": ""
+    },
+    {
+      "name": "Goodreads",
+      "url": ""
+    },
+    {
+      "name": "Amazon",
+      "url": ""
+    }
   ],
-  "newsletter": { "action": "", "field": "email" }
+  "newsletter": {
+    "action": "",
+    "field": "email"
+  },
+  "start": [
+    {
+      "story": "o-quarto",
+      "label": {
+        "pt": "Esta mostra o meu estilo.",
+        "en": "This one shows my style."
+      }
+    },
+    {
+      "story": "nao-beba-o-sangue-de-sua-mae",
+      "label": {
+        "pt": "Esta é curta, ótima para me conhecer.",
+        "en": "This one is short, a great way to meet me."
+      }
+    }
+  ]
 }
