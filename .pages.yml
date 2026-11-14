@@ -1,0 +1,218 @@
+# Configuração do painel de edição (Pages CMS).
+# Quando criar uma história nova, acrescente UMA linha na lista "values" de components > historia
+# (abaixo). Ela alimenta os campos "História" dos capítulos e das caixas da página inicial.
+
+media:
+  input: static/img
+  output: /img
+  categories: [image]
+  rename: safe
+
+settings:
+  commit:
+    templates:
+      create: "Novo conteúdo: {path}"
+      update: "Atualização: {path}"
+      delete: "Remoção: {path}"
+      rename: "Renomeado: {oldPath} para {newPath}"
+
+components:
+  historia:
+    type: select
+    label: História
+    required: true
+    options:
+      placeholder: Escolha a história
+      values:
+        - { name: o-quarto, label: O Quarto }
+        - { name: sapatos-vermelhos, label: Sapatos Vermelhos }
+        - { name: o-dia-que-eu-esqueci-sobre-voce, label: O dia que eu esqueci sobre você }
+        - { name: inkbound, label: Inkbound }
+        - { name: beneath-the-skys-veil, label: Beneath the Sky’s Veil }
+        - { name: nao-beba-o-sangue-de-sua-mae, label: Não beba o sangue de sua mãe }
+        - { name: resdoragon, label: Resdoragon }
+  fonte:
+    type: select
+    options:
+      placeholder: Padrão do site
+      values: [Fraunces, Cormorant Garamond, Spectral, Jost, Literata, Figtree]
+  cores:
+    type: object
+    fields:
+      - { name: bg, label: "Fundo (ex. #1f252e)", type: string, pattern: "^(#[0-9a-fA-F]{6})?$" }
+      - { name: bg2, label: "Fundo, parte de baixo (opcional)", type: string, pattern: "^(#[0-9a-fA-F]{6})?$" }
+      - { name: ink, label: Cor do texto, type: string, pattern: "^(#[0-9a-fA-F]{6})?$" }
+      - { name: muted, label: Cor do texto secundário, type: string, pattern: "^(#[0-9a-fA-F]{6})?$" }
+      - { name: accent, label: Cor de destaque, type: string, pattern: "^(#[0-9a-fA-F]{6})?$" }
+
+content:
+  - name: historias
+    label: Histórias
+    type: group
+    items:
+      - name: capitulos
+        label: Capítulos (português)
+        type: collection
+        path: content/chapters
+        subfolders: false
+        filename: "{story}-{number}-{title}.md"
+        view:
+          fields: [story, number, title, date]
+          primary: title
+          sort: [date, number, title]
+          default:
+            sort: date
+            order: desc
+        fields:
+          - { name: story, component: historia }
+          - { name: number, label: Número do capítulo, type: string, required: true, description: "Use 00 para prólogo. Ex.: 6" }
+          - { name: title, label: Título do capítulo, type: string, required: true }
+          - { name: date, label: Data de publicação, type: date, options: { format: "yyyy-MM-dd" }, description: "Esta data decide o que aparece como atualização recente na página inicial." }
+          - { name: body, label: Texto, type: rich-text, options: { format: markdown, media: false } }
+
+      - name: capitulos_en
+        label: Capítulos (inglês)
+        type: collection
+        path: content/chapters-en
+        subfolders: false
+        exclude: ["LEIA-ME.txt"]
+        filename: "{story}-{number}-{title}.md"
+        view:
+          fields: [story, number, title]
+          primary: title
+          sort: [number, title]
+          default:
+            sort: number
+        fields:
+          - { name: story, component: historia }
+          - { name: number, label: Número do capítulo (o mesmo do capítulo em português), type: string, required: true }
+          - { name: title, label: Título em inglês, type: string, required: true }
+          - { name: body, label: Texto em inglês, type: rich-text, options: { format: markdown, media: false } }
+
+      - name: fichas
+        label: Fichas das histórias
+        type: collection
+        path: content/stories
+        subfolders: false
+        filename: "{title}.md"
+        view:
+          fields: [title, kind, status]
+          primary: title
+        fields:
+          - { name: title, label: Título, type: string, required: true }
+          - { name: title_en, label: Título em inglês (opcional), type: string }
+          - name: kind
+            label: Tipo
+            type: select
+            required: true
+            options:
+              values:
+                - { name: livro, label: Livro }
+                - { name: oneshot, label: One-shot }
+          - name: status
+            label: Situação
+            type: select
+            required: true
+            options:
+              values:
+                - { name: andamento, label: Em andamento }
+                - { name: completo, label: Completo }
+          - { name: genre, label: Gênero, type: string }
+          - { name: genre_en, label: Gênero em inglês, type: string }
+          - { name: synopsis, label: Sinopse, type: text }
+          - { name: synopsis_en, label: Sinopse em inglês, type: text }
+          - { name: cover, label: Capa, type: image }
+          - { name: color, label: "Cor da capa provisória (ex. #c4538c)", type: string, pattern: "^(#[0-9a-fA-F]{6})?$" }
+          - { name: order, label: Ordem de exibição (número), type: number }
+          - { name: date, label: Data da ficha, type: date, options: { format: "yyyy-MM-dd" } }
+          - { name: warnings, label: Avisos de conteúdo, type: string, list: true }
+          - { name: warnings_en, label: Avisos de conteúdo em inglês, type: string, list: true }
+          - name: theme
+            label: Visual desta história
+            type: object
+            fields:
+              - { name: font, label: Fonte dos títulos, component: fonte }
+              - { name: body_font, label: Fonte do texto, component: fonte }
+              - { name: caps, label: Títulos de capítulo em maiúsculas, type: boolean, default: false }
+              - { name: stars, label: Mostrar estrelas no fundo, type: boolean, default: true }
+              - { name: ornament, label: Separador de cena (ex. ❦), type: string }
+              - { name: dark, label: Cores no modo escuro, component: cores }
+              - { name: light, label: Cores no modo claro, component: cores }
+          - { name: body, label: Notas sobre a história (opcional), type: text }
+
+  - name: paginas
+    label: Página Sobre e ajustes
+    type: group
+    items:
+      - name: sobre_pt
+        label: Sobre (português)
+        type: file
+        path: content/sobre.md
+        operations: { delete: false }
+        fields:
+          - { name: title, label: Título, type: string }
+          - { name: description, label: Descrição curta (para buscadores), type: text }
+          - { name: body, label: Texto, type: rich-text, options: { format: markdown, media: false } }
+      - name: sobre_en
+        label: Sobre (inglês)
+        type: file
+        path: content/sobre.en.md
+        operations: { delete: false }
+        fields:
+          - { name: title, label: Título, type: string }
+          - { name: body, label: Texto, type: rich-text, options: { format: markdown, media: false } }
+      - name: site
+        label: Ajustes do site
+        type: file
+        path: site.json
+        format: json
+        operations: { delete: false }
+        fields:
+          - { name: name, label: Nome do site, type: string }
+          - { name: url, label: Endereço do site (não mexer), type: string, readonly: true }
+          - { name: base, label: Pasta do site (não mexer), type: string, readonly: true }
+          - { name: photo, label: Sua foto, type: image }
+          - { name: ogImage, label: Imagem de pré-visualização dos links (1200×630), type: image }
+          - name: tagline
+            label: Frase da página inicial
+            type: object
+            fields:
+              - { name: pt, label: Português, type: string }
+              - { name: en, label: Inglês, type: string }
+          - name: subtitle
+            label: Frase abaixo do título
+            type: object
+            fields:
+              - { name: pt, label: Português, type: string }
+              - { name: en, label: Inglês, type: string }
+          - name: footer
+            label: Frase do rodapé
+            type: object
+            fields:
+              - { name: pt, label: Português, type: string }
+              - { name: en, label: Inglês, type: string }
+          - name: socials
+            label: Redes sociais (as sem endereço não aparecem)
+            type: object
+            list: true
+            fields:
+              - { name: name, label: Nome, type: string }
+              - { name: url, label: Endereço do seu perfil, type: string }
+          - name: newsletter
+            label: Newsletter
+            type: object
+            fields:
+              - { name: action, label: Endereço do formulário do serviço de e-mail, type: string }
+              - { name: field, label: Nome do campo de e-mail, type: string }
+          - name: start
+            label: Por onde começar (as caixas da página inicial)
+            type: object
+            list: true
+            fields:
+              - { name: story, component: historia }
+              - name: label
+                label: Texto da caixa
+                type: object
+                fields:
+                  - { name: pt, label: Português, type: string }
+                  - { name: en, label: Inglês, type: string }
