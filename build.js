@@ -98,7 +98,7 @@ const UI = {
     published: "publicado em", minutes: "leitura de cerca de {n} minutos", nl: "Receba o próximo capítulo.",
     nlp: "Um aviso quando houver história nova. Sem spam.", nlph: "Seu melhor e-mail", nlb: "Quero receber",
     nlsoon: "O cadastro de e-mail ainda não está ligado a um serviço.", lightMode: "Modo claro", darkMode: "Modo escuro",
-    pers: "Personalizar", font: "Fonte", bg: "Fundo", accent: "Destaque", stars: "Estrelas", reset: "Restaurar",
+    pers: "Personalizar", font: "Fonte do título", fontBody: "Fonte do texto", bg: "Fundo", accent: "Destaque", stars: "Estrelas", reset: "Restaurar",
     nothing: "Nada por aqui ainda.", notfound: "Página não encontrada.", home: "Voltar ao início"
   },
   en: {
@@ -111,7 +111,7 @@ const UI = {
     published: "published on", minutes: "about a {n}-minute read", nl: "Get the next chapter.",
     nlp: "A heads-up when there’s a new story. No spam.", nlph: "Your best email", nlb: "Sign me up",
     nlsoon: "The email signup isn’t connected to a service yet.", lightMode: "Light mode", darkMode: "Dark mode",
-    pers: "Customize", font: "Font", bg: "Background", accent: "Accent", stars: "Stars", reset: "Reset",
+    pers: "Customize", font: "Title font", fontBody: "Text font", bg: "Background", accent: "Accent", stars: "Stars", reset: "Reset",
     nothing: "Nothing here yet.", notfound: "Page not found.", home: "Back to home"
   }
 };
@@ -128,7 +128,7 @@ const date2 = d => bi(esc(fmt(d, "pt")), esc(fmt(d, "en")));
 /* ---------- temas por história ---------- */
 const FONTS = {
   "Fraunces": "'Fraunces',Georgia,serif", "Cormorant Garamond": "'Cormorant Garamond',Georgia,serif",
-  "Spectral": "'Spectral',Georgia,serif", "Jost": "'Jost',system-ui,sans-serif", "Literata": "'Literata',Georgia,serif"
+  "Spectral": "'Spectral',Georgia,serif", "Jost": "'Jost',system-ui,sans-serif", "Literata": "'Literata',Georgia,serif", "Figtree": "'Figtree',system-ui,sans-serif"
 };
 const toRgb = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
 const darken = (hex, f) => "#" + toRgb(hex).map(v => Math.round(v * f).toString(16).padStart(2, "0")).join("");
@@ -146,6 +146,7 @@ function themeVars(s) {
     "--l-bg": L.bg, "--l-bg2": mix(L, 1), "--l-ink": L.ink, "--l-mu": L.muted, "--l-ac": L.accent, "--l-on": onColor(L.accent), "--l-st": 0
   };
   if (FONTS[t.font]) v["--serif"] = FONTS[t.font];
+  if (FONTS[t.body_font]) v["--body"] = FONTS[t.body_font];
   return Object.entries(v).map(([k, x]) => `${k}:${x}`).join(";");
 }
 
@@ -206,6 +207,7 @@ function page({ title, desc, path: p, image, type = "website", body, story = nul
   const panel = themed ? `
 <details id="cust" hidden><summary>${T("pers")}</summary><div class="cp">
 <label>${T("font")}<select id="cf"></select></label>
+<label>${T("fontBody")}<select id="cf2"></select></label>
 <label>${T("bg")}<input type="color" id="cb"></label>
 <label>${T("accent")}<input type="color" id="ca"></label>
 <label>${T("stars")}<input type="checkbox" id="cs"></label>
@@ -271,28 +273,39 @@ function featureCard(s, noteHtml, btnKey, href) {
 <a class="btn" href="${url(href)}">${T(btnKey)}</a></div></div>`;
 }
 function homePage(stories) {
-  const withDate = stories.some(s => s.chapters.length) ? stories.filter(s => s.chapters.length) : stories.filter(s => s.updated);
-  const last = [...withDate].sort((a, b) => b.updated.localeCompare(a.updated))[0] || stories[0];
-  const latestCh = s => s.chapters[s.chapters.length - 1];
-  const lastNote = (() => {
-    const c = last && latestCh(last);
-    return c ? `<p class="upnote">${T("newCh")}, ${c.date ? date2(c.date) : ""}</p>` : `<p class="upnote">${T("updated")} ${date2(last.updated)}</p>`;
-  })();
-  const lastHref = last && (last.chapters.length ? `${last.href}${latestCh(last).slug}/` : last.href);
-  const rec = stories.find(s => s.start) || stories.find(s => s.kind === "oneshot" && s.status === "completo") || stories[0];
-  const recNote = `<p class="upnote">${bi(esc(UI.pt.minutes.replace("{n}", minutes(rec))), esc(UI.en.minutes.replace("{n}", minutes(rec))))}</p>`;
-  const recHref = rec.chapters.length ? `${rec.href}${rec.chapters[0].slug}/` : rec.href;
-  const ups = stories.filter(s => s !== last && s.chapters.length).sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 4).map(s => {
-    const c = latestCh(s);
-    const what = c ? bi(esc(`${UI.pt.newCh}: ${c.title}`), esc(`${UI.en.newCh}: ${c.titleEn || c.title}`)) : T("updated");
-    return `<li><a href="${url(s.href)}"><b>${titleOf(s)}</b></a><span class="w">${what}</span><span>${date2(c ? c.date : s.updated)}</span></li>`;
-  }).join("");
+  const refs = stories.flatMap(s => s.chapters.map(c => ({ s, c })))
+    .sort((a, b) => b.c.date.localeCompare(a.c.date) || b.c.i - a.c.i);
+  const chHref = (s, c) => `${s.href}${c.slug}/`;
+  const top = refs[0];
+  const last = top ? top.s : stories[0];
+  const chName = (c, sep) => bi(esc(`${UI.pt.chapter} ${c.number}${sep} ${c.title}`), esc(`${UI.en.chapter} ${c.number}${sep} ${c.titleEn || c.title}`));
+  const lastNote = top
+    ? `<p class="upnote">${T("newCh")}: ${chName(top.c, ",")}, ${date2(top.c.date)}</p>`
+    : `<p class="upnote">${T("soonCh")}</p>`;
+  const lastHref = top ? chHref(top.s, top.c) : last.href;
+
+  // Atualizações recentes: os capítulos mais novos de todas as histórias (menos o que já está em destaque).
+  const ups = refs.slice(1, 6).map(({ s, c }) =>
+    `<li><a href="${url(chHref(s, c))}"><b>${titleOf(s)}</b></a><span class="w">${chName(c, ":")}</span><span>${date2(c.date)}</span></li>`).join("");
+
+  // Por onde começar: as histórias escolhidas em site.json ("start").
+  const picks = (site.start || []).map(x => ({ s: stories.find(s => s.slug === x.story), label: x.label || { pt: "", en: "" } })).filter(x => x.s);
+  const pickCard = ({ s, label }) => {
+    const href = s.chapters.length ? chHref(s, s.chapters[0]) : s.href;
+    const mins = s.kind === "oneshot" && s.chapters.length
+      ? `<p class="upnote">${bi(esc(UI.pt.minutes.replace("{n}", minutes(s))), esc(UI.en.minutes.replace("{n}", minutes(s))))}</p>` : "";
+    return `<div class="feature pick">${cover(s)}<div>
+${label.pt ? `<p class="tagline">${bi(esc(label.pt), esc(label.en))}</p>` : ""}<h3>${titleOf(s)}</h3><p class="sub">${genreOf(s)}, ${T(s.kind === "livro" ? "livro1" : "oneshot1")}</p>
+<p class="d">${synOf(s)}</p>${mins}<a class="btn" href="${url(href)}">${T("read")}</a></div></div>`;
+  };
+  const start = picks.length ? `<section><p class="lbl">${T("start")}</p><div class="duo">${picks.map(pickCard).join("")}</div></section>` : "";
+
   const nb = stories.filter(s => s.kind === "livro").length, no = stories.length - nb;
   const body = `
 <div class="hero"><h1>${bi(esc(site.tagline.pt), esc(site.tagline.en))}</h1><p>${bi(esc(site.subtitle.pt), esc(site.subtitle.en))}</p></div>
 <section><p class="lbl">${T("last")}</p>${featureCard(last, lastNote, "cont", lastHref)}</section>
 ${ups ? `<section><h2>${T("upd")}</h2><ul class="upd">${ups}</ul></section>` : ""}
-<section><p class="lbl">${T("start")}</p>${featureCard(rec, recNote, "read", recHref)}</section>
+${start}
 <section><h2>${T("explore")}</h2><div class="browse">
 <a href="${url("livros/")}"><strong>${T("livros")}</strong><span>${T("bkDesc")} (${nb})</span></a>
 <a href="${url("one-shots/")}"><strong>${T("oneshots")}</strong><span>${T("osDesc")} (${no})</span></a></div></section>`;
@@ -305,7 +318,7 @@ function shelfPage(stories, kind) {
     const c = s.chapters[s.chapters.length - 1];
     return `<div class="row">${cover(s)}<div>
 <h3><a href="${url(s.href)}">${titleOf(s)}</a><span class="badge">${statusOf(s)}</span></h3>
-<p class="sub">${genreOf(s)}${s.updated ? `, ${T("updated")} ${date2(s.updated)}` : ""}</p><p>${synOf(s)}</p></div></div>`;
+<p class="sub">${genreOf(s)}${s.chapters.length ? `, ${T("updated")} ${date2(s.updated)}` : `, ${T("soonCh")}`}</p><p>${synOf(s)}</p></div></div>`;
   }).join("");
   const body = `<div class="hero"><h1>${T(key)}</h1><p>${T(isBook ? "bkDesc" : "osDesc")}</p></div><div class="list">${rows || `<p class="hint">${T("nothing")}</p>`}</div>`;
   write(`${slug}/index.html`, page({ title: UI.pt[key], path: `${slug}/`, nav: slug, body }));
