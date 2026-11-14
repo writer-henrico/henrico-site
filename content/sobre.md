@@ -6,4 +6,6 @@ Escrevo histórias de mistério, terror e fantasia, quase sempre com um pouco de
 
 Este site é a casa das minhas histórias, em português e em inglês.
 
-Um dia quero ver estes livros na Amazon. Até lá, é aqui que você lê primeiro.
+Um dia quero ver estes livros na Amazon. 
+
+Até lá, é aqui que você lê primeiro.
