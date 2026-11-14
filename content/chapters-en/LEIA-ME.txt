@@ -1,0 +1,2 @@
+Aqui ficam as traducoes dos capitulos para o ingles (um arquivo por capitulo).
+Use o painel (Historias > Capitulos em ingles) ou crie arquivos .md com os campos story, number e title.
