@@ -2,7 +2,7 @@
 title: Oi, eu sou o Henrico.
 description: Escritor de histórias de mistério, terror e fantasia.
 ---
-Escrevo histórias de mistério, terror e fantasia, quase sempre com um pouco de melancolia. Gosto de começar com uma pergunta e deixar o leitor ir atrás da resposta.
+Escrevo histórias de mistério, terror e fantasia, quase sempre com um pouco de melancolia. 
 
 Este site é a casa das minhas histórias, em português e em inglês.
 
