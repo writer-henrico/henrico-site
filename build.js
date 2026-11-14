@@ -178,7 +178,7 @@ function loadStories() {
 }
 
 /* ---------- peças de HTML ---------- */
-const FONT_LINK = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Figtree:wght@400;500&family=Cormorant+Garamond:wght@500;600&family=Jost:wght@400;500;600&family=Spectral:wght@400;600&family=Literata:opsz,wght@7..72,400;500&display=swap";
+const FONT_LINK = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Figtree:wght@400;500&family=Cormorant+Garamond:wght@500;600&family=Jost:wght@400;500;600&family=Spectral:wght@400;600&family=Literata:wght@400;500&display=swap";
 const EARLY = `(function(){try{var d=document.documentElement,l=localStorage.getItem("hc-lang")||"pt";d.dataset.lang=l;d.lang=l==="en"?"en":"pt-BR";if(d.dataset.themed==="1"){d.dataset.mode=localStorage.getItem("hc-mode")||"dark"}var s=localStorage.getItem("hc-size");if(s)d.style.setProperty("--rs",s+"px")}catch(e){}})();`;
 
 function cover(s, cls = "") {
@@ -236,7 +236,7 @@ function page({ title, desc, path: p, image, type = "website", body, story = nul
 ${img ? `<meta property="og:image" content="${esc(img)}">` : ""}
 <meta name="twitter:card" content="${img ? "summary_large_image" : "summary"}">
 <link rel="alternate" type="application/rss+xml" title="${esc(site.name)}" href="${url("feed.xml")}">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌙%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23070b26'/%3E%3Cpath d='M50 12 L58 42 L88 50 L58 58 L50 88 L42 58 L12 50 L42 42 Z' fill='%23f2b365'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="${FONT_LINK}" rel="stylesheet">
 <link rel="stylesheet" href="${url("style.css")}">
