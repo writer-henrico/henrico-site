@@ -1,8 +1,8 @@
 ---
 story: nao-beba-o-sangue-de-sua-mae
-title: Lírios negros
-number: 1
-date: 2026-11-07
+number: "1"
+title: "Lírios negros"
+date: 2026-11-17
 ---
 No meu mundo, eu nunca esperaria ver um parente morrendo tão cedo, ainda mais sem saber a causa. E mesmo assim, no momento, estou à caminho de um funeral.
 
@@ -18,17 +18,17 @@ E mais uma vez em silêncio, o que significa que muito provavelmente ele está e
 
 Mas, um carniçal não pode mentir para nós.
 
-Quando eu estava preparada para dar o comando, ele me interrompeu, dizendo:
+Quando eu estava preparada para dar um comando, ele me interrompeu, dizendo:
 
 – Eu tenho quase certeza de que a senhorita vai descobrir assim que chegar lá.
 
 *“Que saco”*
 
-Olhei para longe. Mal conseguia ver a paisagem do lado de fora.
+Olhei para longe para aquele final de tarde. Mal conseguia ver a paisagem do lado de fora.
 
 – Tudo bem, eu vou esperar então.
 
-— ❦ —
+---
 
 Chegando na mansão.
 
@@ -36,15 +36,15 @@ Não consigo explicar o sentimento que eu tive.
 
 Mas, com certeza não estava em um clima de velório.
 
-Caras fechadas.
+Caras sérias.
 
-Pessoas conversando de forma séria.
+Pessoas discutindo sobre números.
 
 Todos vestindo roupas sociais.
 
 Eu estava em um evento de negócios?
 
-Quando eu me aproximei todos os rostos se voltaram para mim e as conversas pararam.
+Quando eu me aproximei, as conversas pararam e todos os rostos se voltaram para mim.
 
 Andei mais alguns passos e tive a impressão de que seus olhos estavam me seguindo.
 
@@ -52,7 +52,7 @@ Uma pressão inimaginável.
 
 Apesar de ser da família e do clã Umbra, era como se eu fosse alguém de fora.
 
-– Hanna!
+– Hanna! – Uma voz feminina me chamou.
 
 Minha mente voltou para a realidade assim que eu ouvi aquela voz.
 
@@ -122,7 +122,7 @@ Ela voltou a olhar para mim e sorriu.
 
 Então seguimos o ritmo das pessoas entrando na mansão.
 
-— ❦ —
+---
 
 A grande mesa de jantar estava cheia. A prata dos talheres e das travessas refletiam a luz dos candelabros.
 
@@ -210,13 +210,13 @@ Eu senti uma profunda tristeza.
 
 “O que será que ela estava pensando antes de morrer?”
 
-“Se ela pudesse me falar qualquer coisa o que ela falaria para mim? “
+“Se ela pudesse me falar qualquer coisa o que ela falaria para mim?”
 
 Carmen entrou no salão.
 
 – Poderiam se sentar. Vamos começar a cerimônia.
 
-— ❦ —
+---
 
 Todos os convidados estavam sentados.
 

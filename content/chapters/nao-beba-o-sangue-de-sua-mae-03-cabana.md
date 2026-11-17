@@ -1,8 +1,8 @@
 ---
 story: nao-beba-o-sangue-de-sua-mae
-title: Cabana
-number: 3
-date: 2026-11-07
+number: "3"
+title: "Cinzas do passado"
+date: 2026-11-17
 ---
 Abri os olhos, vi uma luz fraca iluminando a parede do que parecia ser uma cabana feita de madeira.
 
@@ -12,7 +12,7 @@ Eu estava deitada em uma cama coberta por uma manta peluda.
 
 As memórias começaram a voltar à tona.
 
-“Eu preciso correr, minha família vai me pegar. “
+“Eu preciso correr, minha família vai me pegar.”
 
 Levantei com pressa e senti uma fraqueza que me colocou de volta na cama como se eu fosse um ferro e a cama um imã.
 
@@ -84,7 +84,7 @@ Ele desviou o olhar.
 
 Ele ficou quieto.
 
-– Você gostava da minha mãe? Vocês eram próximos?
+– Você gostava da minha mãe? Vocês eram próximos? Amantes, talvez?
 
 Adrian parou de virar as páginas.
 
@@ -160,7 +160,7 @@ Meus cortes já estavam se curando, mas aquele sangue era diferente, ativou meus
 
 – Esse sangue é especial, não é?
 
-– É um sangue especial. Foi difícil consegui-lo. – Adrian sorriu, mas a expressão logo desapareceu de seu rosto. – Eu estava guardando para uma ocasião especial... para beber com sua mãe.
+– É um sangue especial. Foi difícil consegui-lo. – Adrian sorriu, mas a expressão logo desapareceu de seu rosto. – Eu estava guardando para uma ocasião especial… para beber com sua mãe.
 
 Uma dúvida começou a crescer dentro de mim.
 

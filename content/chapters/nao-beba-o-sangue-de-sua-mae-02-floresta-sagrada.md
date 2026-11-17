@@ -1,8 +1,8 @@
 ---
 story: nao-beba-o-sangue-de-sua-mae
-title: Floresta sagrada
-number: 2
-date: 2026-11-07
+number: "2"
+title: "Floresta sagrada"
+date: 2026-11-17
 ---
 Corri o mais rápido que pude.
 
@@ -34,7 +34,7 @@ Eu não sabia se eles iriam me alcançar.
 
 Pensei no rosto de minha tia, me pedindo para correr.
 
-*“Não tenho opção. “*
+*“Não tenho opção.”*
 
 Voltei minha atenção para frente.
 
@@ -80,7 +80,7 @@ Vi marcas escuras em formas geométricas em seus pelos.
 
 Me coloquei de guarda.
 
-*“Lobisomem...”*
+*“Lobisomem…”*
 
 Ele me farejou.
 
@@ -162,7 +162,7 @@ Mais dois lobos apareceram, um de pelos pretos e outro de pelos brancos, ambos t
 
 – Outra? – perguntei, confusa. – Ela se parecia comigo?
 
-– Si...
+– Si…
 
 – Não temos que falar nada para você – interrompeu o lobo ferido.
 

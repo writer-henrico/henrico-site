@@ -1,8 +1,8 @@
 ---
 story: nao-beba-o-sangue-de-sua-mae
-title: Inimigos
-number: 5
-date: 2026-11-07
+number: "5"
+title: "Inimigos"
+date: 2026-11-17
 ---
 Eu estava ofegante, coberta de cortes. Meus braços doíam, e minhas pernas mal conseguiam me sustentar.
 
@@ -204,7 +204,7 @@ As palavras não saiam.
 
 Precisava que Hanna soubesse.
 
-– Diga... Hanna…. Eu a amo.
+– Diga… Hanna…. Eu a amo.
 
 Sorri uma última vez.
 
@@ -228,7 +228,7 @@ Lisa se aproximou e me abraçou.
 
 Desabei em seus braços, chorando como nunca antes.
 
-— ❦ —
+---
 
 Dias depois, ainda pensava nas memórias da minha mãe.
 

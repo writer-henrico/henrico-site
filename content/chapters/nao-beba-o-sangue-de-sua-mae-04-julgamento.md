@@ -1,8 +1,8 @@
 ---
 story: nao-beba-o-sangue-de-sua-mae
-title: Julgamento
-number: 4
-date: 2026-11-07
+number: "4"
+title: "Julgamento"
+date: 2026-11-17
 ---
 Havia vampiros por todos os lados.
 

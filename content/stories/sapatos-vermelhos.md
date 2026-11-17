@@ -1,6 +1,6 @@
 ---
-title: Sapatos Vermelhos
-title_en: Red Shoes
+title: Emília e os Sapatos Vermelhos
+title_en: Emília and the Red Shoes
 kind: livro
 status: completo
 genre: Drama
