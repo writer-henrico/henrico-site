@@ -6,6 +6,16 @@ const path = require("path");
 const ROOT = __dirname;
 const OUT = path.join(ROOT, "public");
 const site = JSON.parse(fs.readFileSync(path.join(ROOT, "site.json"), "utf8"));
+// Tolerância: o painel pode gravar listas e campos vazios de jeitos um pouco diferentes.
+const asList = v => (Array.isArray(v) ? v : v && typeof v === "object" ? Object.values(v) : []);
+const pair = o => ({ pt: "", en: "", ...(o && typeof o === "object" ? o : {}) });
+site.name = site.name || "Henrico Campos";
+site.socials = asList(site.socials).filter(x => x && typeof x === "object");
+site.start = asList(site.start).filter(x => x && typeof x === "object" && x.story);
+site.tagline = pair(site.tagline); site.subtitle = pair(site.subtitle); site.footer = pair(site.footer);
+site.newsletter = site.newsletter && typeof site.newsletter === "object" ? site.newsletter : {};
+site.base = "/" + String(site.base || "/").replace(/^\/+|\/+$/g, "") + (String(site.base || "/").replace(/\//g, "") ? "/" : "");
+console.log("Redes sociais com endereço:", site.socials.filter(x => x.url).map(x => x.name).join(", ") || "nenhuma");
 const BASE = site.base || "/";
 const url = (p = "") => BASE + String(p).replace(/^\//, "");
 const abs = (p = "") => site.url.replace(/\/$/, "") + url(p);
@@ -60,7 +70,11 @@ function parseYaml(src) {
         if (i < lines.length && ind(lines[i]) > indent) obj[key] = block(ind(lines[i]));
         else if (i < lines.length && ind(lines[i]) === indent && lines[i].trim().startsWith("- ")) obj[key] = block(indent);
         else obj[key] = "";
-      } else obj[key] = scalar(val);
+      } else {
+        let text = val;
+        while (i < lines.length && ind(lines[i]) > indent && !lines[i].trim().startsWith("- ")) text += " " + lines[i++].trim();
+        obj[key] = scalar(text);
+      }
     }
     return obj;
   }
@@ -77,7 +91,7 @@ const inline = s => esc(s)
   .replace(/(^|[^*\w])\*(?!\s)(.+?)(?<!\s)\*(?!\*)/g, "$1<em>$2</em>")
   .replace(/(^|[\s(])_(?!\s)(.+?)(?<!\s)_(?=[\s).,!?:;]|$)/g, "$1<em>$2</em>");
 function md(body, ornament) {
-  return body.replace(/\r/g, "").split(/\n{2,}/).map(b => b.trim()).filter(Boolean).map(b => {
+  return body.replace(/\r/g, "").split(/\n{2,}/).map(b => b.trim().replace(/\\([\\`*_{}\[\]()#+.!>~|-])/g, "$1")).filter(Boolean).map(b => {
     if (/^(-{3,}|\*\s?\*\s?\*|[—–-]+\s*❦\s*[—–-]+|~)$/.test(b)) return `<p class="brk">${esc(ornament)}</p>`;
     const h = b.match(/^(#{1,3})\s+(.*)$/);
     if (h) return `<h${h[1].length + 1}>${inline(h[2])}</h${h[1].length + 1}>`;
@@ -85,6 +99,8 @@ function md(body, ornament) {
   }).join("\n");
 }
 const words = s => (s.match(/\S+/g) || []).length;
+const slugify = s => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const storyKey = v => slugify(path.basename(String(v || "")).replace(/\.md$/i, ""));
 
 /* ---------- textos da interface (PT / EN) ---------- */
 const UI = {
@@ -137,8 +153,9 @@ const isHex = v => /^#[0-9a-f]{6}$/i.test(v || "");
 function themeVars(s) {
   const t = s.theme || {};
   const acc = isHex(s.color) ? s.color : "#f2b365";
-  const D = { bg: "#070b26", ink: "#f2efe9", muted: "#aab0d0", accent: acc, ...(t.dark || {}) };
-  const L = { bg: "#f5ecd6", ink: "#1c2252", muted: "#5b6088", accent: darken(acc, 0.72), ...(t.light || {}) };
+  const clean = o => Object.fromEntries(Object.entries(o && typeof o === "object" ? o : {}).filter(([, x]) => x !== "" && x != null));
+  const D = { bg: "#070b26", ink: "#f2efe9", muted: "#aab0d0", accent: acc, ...clean(t.dark) };
+  const L = { bg: "#f5ecd6", ink: "#1c2252", muted: "#5b6088", accent: darken(acc, 0.72), ...clean(t.light) };
   const mix = (o, light) => o.bg2 || `color-mix(in srgb,${o.bg} ${light ? 90 : 86}%,${light ? "#000" : "#fff"})`;
   const v = {
     "--d-bg": D.bg, "--d-bg2": mix(D, 0), "--d-ink": D.ink, "--d-mu": D.muted, "--d-ac": D.accent, "--d-on": onColor(D.accent),
@@ -152,29 +169,45 @@ function themeVars(s) {
 
 /* ---------- carregar conteúdo ---------- */
 function loadStories() {
-  const dir = path.join(ROOT, "content/stories");
-  const list = fs.readdirSync(dir, { withFileTypes: true }).filter(d => d.isDirectory() && fs.existsSync(path.join(dir, d.name, "index.md"))).map(d => {
-    const sd = path.join(dir, d.name);
-    const idx = parseDoc(read(path.join(sd, "index.md")));
-    const s = { slug: d.name, ...idx.data, notes: idx.body.trim() };
-    const theme = s.theme || {};
-    s.ornament = theme.ornament || "❦";
-    const groups = {};
-    for (const f of fs.readdirSync(sd).filter(f => f.endsWith(".md") && f !== "index.md").sort()) {
-      const m = f.match(/^(.+?)(?:\.(en))?\.md$/);
-      (groups[m[1]] ||= { key: m[1] })[m[2] || "pt"] = parseDoc(read(path.join(sd, f)));
-    }
-    s.chapters = Object.values(groups).filter(c => c.pt).sort((a, b) => a.key.localeCompare(b.key)).map((c, i) => ({
-      ...c, i, slug: c.key.replace(/^\d+-/, ""), title: c.pt.data.title || `Capítulo ${i + 1}`,
-      titleEn: c.en?.data.title || "", number: String(c.pt.data.number ?? i + 1),
-      date: String(c.pt.data.date || s.date || "").slice(0, 10), words: words(c.pt.body)
-    }));
+  const folder = rel => {
+    const dir = path.join(ROOT, rel);
+    if (!fs.existsSync(dir)) return [];
+    return fs.readdirSync(dir, { withFileTypes: true })
+      .filter(d => d.isFile() && d.name.endsWith(".md") && !d.name.startsWith("."))
+      .map(d => ({ file: d.name, ...parseDoc(read(path.join(dir, d.name))) }))
+      .sort((a, b) => a.file.localeCompare(b.file));
+  };
+  const chapters = folder("content/chapters"), english = folder("content/chapters-en");
+  const known = new Set();
+  const ord = s => (s.order === "" || s.order == null || isNaN(Number(s.order)) ? 99 : Number(s.order));
+  const list = folder("content/stories").map(doc => {
+    const slug = slugify(doc.file.replace(/\.md$/i, ""));
+    known.add(slug);
+    const s = { slug, ...doc.data, notes: doc.body.trim() };
+    s.ornament = (s.theme || {}).ornament || "❦";
+    const usedSlugs = new Set();
+    s.chapters = chapters.filter(c => storyKey(c.data.story) === slug).map(c => {
+      const number = String(c.data.number ?? "");
+      const en = english.find(e => storyKey(e.data.story) === slug && String(e.data.number ?? "") === number);
+      return {
+        file: c.file, pt: c, en, number,
+        title: c.data.title || c.file.replace(/\.md$/i, ""), titleEn: en?.data.title || "",
+        date: String(c.data.date || s.date || "").slice(0, 10), words: words(c.body)
+      };
+    }).sort((a, b) => (parseFloat(a.number) - parseFloat(b.number)) || a.file.localeCompare(b.file, undefined, { numeric: true }))
+      .map((c, i) => {
+        let sl = slugify(c.title) || `capitulo-${i + 1}`;
+        while (usedSlugs.has(sl)) sl += "-2";
+        usedSlugs.add(sl);
+        return { ...c, i, slug: sl };
+      });
     s.updated = [s.date, ...s.chapters.map(c => c.date)].map(x => String(x || "").slice(0, 10)).sort().pop() || "";
     s.words = s.chapters.reduce((n, c) => n + c.words, 0);
     s.href = `historias/${s.slug}/`;
     return s;
   });
-  return list.sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  chapters.filter(c => !known.has(storyKey(c.data.story))).forEach(c => console.warn(`Aviso: o capítulo "${c.file}" não pertence a nenhuma história existente (campo story: "${c.data.story}").`));
+  return list.sort((a, b) => ord(a) - ord(b));
 }
 
 /* ---------- peças de HTML ---------- */
