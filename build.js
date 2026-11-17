@@ -194,11 +194,12 @@ function loadStories() {
       return {
         file: c.file, pt: c, en, number,
         title: c.data.title || c.file.replace(/\.md$/i, ""), titleEn: en?.data.title || "",
+        label: String(c.data.label ?? ""), labelEn: String(en?.data.label ?? ""), slugOverride: String(c.data.slug ?? ""),
         date: String(c.data.date || s.date || "").slice(0, 10), words: words(c.body)
       };
     }).sort((a, b) => (parseFloat(a.number) - parseFloat(b.number)) || a.file.localeCompare(b.file, undefined, { numeric: true }))
       .map((c, i) => {
-        let sl = slugify(c.title) || `capitulo-${i + 1}`;
+        let sl = slugify(c.slugOverride || c.title) || `capitulo-${i + 1}`;
         while (usedSlugs.has(sl)) sl += "-2";
         usedSlugs.add(sl);
         return { ...c, i, slug: sl };
@@ -227,6 +228,14 @@ const synOf = s => bi(esc(s.synopsis), esc(s.synopsis_en));
 const kindKey = s => (s.kind === "livro" ? "livros" : "oneshots");
 const kindHref = s => (s.kind === "livro" ? "livros/" : "one-shots/");
 const statusOf = s => T(s.status === "andamento" ? "andamento" : "completo");
+// Rótulo do capítulo: vazio = "Capítulo N"; "-" = sem rótulo (Prólogo, Ato, Epílogo); ou um texto próprio.
+const chLabel = (c, lang) => {
+  let raw = lang === "en" ? (c.labelEn || c.label) : c.label;
+  if (raw === "-") return "";
+  if (!raw) return `${UI[lang].chapter} ${c.number}`;
+  if (lang === "en" && !c.labelEn) raw = raw.replace(/^Cap[ií]tulo/i, "Chapter").replace(/^Pr[oó]logo/i, "Prologue").replace(/^Ep[ií]logo/i, "Epilogue").replace(/^Ato\b/i, "Act");
+  return raw;
+};
 const WPM = 230; // palavras por minuto (leitura silenciosa); mude aqui se quiser outro ritmo
 const mins = w => Math.max(1, Math.round(w / WPM));
 const fmtMin = n => (n < 60 ? `${n} min` : `${Math.floor(n / 60)} h${n % 60 ? ` ${n % 60} min` : ""}`);
@@ -313,18 +322,24 @@ function featureCard(s, noteHtml, btnKey, href) {
 }
 function homePage(stories) {
   const refs = stories.flatMap(s => s.chapters.map(c => ({ s, c })))
-    .sort((a, b) => b.c.date.localeCompare(a.c.date) || b.c.i - a.c.i);
+    .sort((a, b) => b.c.date.localeCompare(a.c.date) || (stories.indexOf(a.s) - stories.indexOf(b.s)) || b.c.i - a.c.i);
   const chHref = (s, c) => `${s.href}${c.slug}/`;
   const top = refs[0];
   const last = top ? top.s : stories[0];
-  const chName = (c, sep) => bi(esc(`${UI.pt.chapter} ${c.number}${sep} ${c.title}`), esc(`${UI.en.chapter} ${c.number}${sep} ${c.titleEn || c.title}`));
+  const chName = (c, sep) => {
+    const f = (lang, t) => { const l = chLabel(c, lang); return l ? `${l}${sep} ${t}` : t; };
+    return bi(esc(f("pt", c.title)), esc(f("en", c.titleEn || c.title)));
+  };
   const lastNote = top
     ? `<p class="upnote">${T("newCh")}: ${chName(top.c, ",")}, ${date2(top.c.date)}</p>`
     : `<p class="upnote">${T("soonCh")}</p>`;
   const lastHref = top ? chHref(top.s, top.c) : last.href;
 
   // Atualizações recentes: os capítulos mais novos de todas as histórias (menos o que já está em destaque).
-  const ups = refs.slice(1, 6).map(({ s, c }) =>
+  const seen = new Set(), latestPer = [];
+  for (const r of refs) if (!seen.has(r.s.slug)) { seen.add(r.s.slug); latestPer.push(r); }
+  const pool = latestPer.length > 2 ? latestPer.filter(r => r.s !== last).slice(0, 5) : refs.slice(1, 6);
+  const ups = pool.map(({ s, c }) =>
     `<li><a href="${url(chHref(s, c))}"><b>${titleOf(s)}</b></a><span class="w">${chName(c, ":")}</span><span>${date2(c.date)}</span></li>`).join("");
 
   // Por onde começar: as histórias escolhidas em site.json ("start").
@@ -364,7 +379,7 @@ function shelfPage(stories, kind) {
 }
 function storyPages(s) {
   const first = s.chapters[0];
-  const list = s.chapters.map(c => `<li><a href="${url(`${s.href}${c.slug}/`)}"><span>${T("chapter")} ${esc(c.number)}</span><b>${bi(esc(c.title), esc(c.titleEn))}</b><i class="t">${fmtMin(mins(c.words))}</i></a></li>`).join("");
+  const list = s.chapters.map(c => `<li><a href="${url(`${s.href}${c.slug}/`)}">${chLabel(c, "pt") || chLabel(c, "en") ? `<span>${bi(esc(chLabel(c, "pt")), esc(chLabel(c, "en")))}</span>` : ""}<b>${bi(esc(c.title), esc(c.titleEn))}</b><i class="t">${fmtMin(mins(c.words))}</i></a></li>`).join("");
   const warnings = Array.isArray(s.warnings) && s.warnings.length ? `<section><h2>${T("warn")}</h2><p class="hint">${bi(esc(s.warnings.join(", ")), esc((Array.isArray(s.warnings_en) && s.warnings_en.length ? s.warnings_en : s.warnings).join(", ")))}</p></section>` : "";
   const nCh = s.chapters.length;
   const meta = nCh ? `<p class="meta2">${bi(esc(UI.pt[nCh === 1 ? "chOne" : "chMany"].replace("{n}", nCh)), esc(UI.en[nCh === 1 ? "chOne" : "chMany"].replace("{n}", nCh)))}, ${rt(s.words, "rtAll")}</p>` : "";
@@ -386,7 +401,7 @@ ${first ? `<section><h2>${T("toc")}</h2><ol class="chl">${list}</ol></section>` 
     const html = `<div class="prog" aria-hidden="true"><i></i></div><div class="left" id="left" aria-hidden="true" data-wpm="${WPM}" data-w-pt="${c.words}" data-w-en="${enWords}"></div><div class="reader"><div class="tools"><a href="${url(s.href)}">${T("back")}</a><span class="ctl">
 <button type="button" data-act="smaller" aria-label="A-">A−</button><button type="button" data-act="bigger" aria-label="A+">A+</button>
 <button type="button" data-act="mode"><span class="to-light">${T("lightMode")}</span><span class="to-dark">${T("darkMode")}</span></button></span></div>
-<p class="kicker">${bi(esc(`${s.title}, capítulo ${c.number}, ${rtPlain(c.words, "pt")}`), esc(`${s.title_en || s.title}, chapter ${c.number}, ${rtPlain(c.en ? enWords : c.words, "en")}`))}</p>
+<p class="kicker">${bi(esc([s.title, chLabel(c, "pt"), rtPlain(c.words, "pt")].filter(Boolean).join(", ")), esc([s.title_en || s.title, chLabel(c, "en"), rtPlain(c.en ? enWords : c.words, "en")].filter(Boolean).join(", ")))}</p>
 <h1${caps}>${bi(esc(c.title), esc(c.titleEn))}</h1>
 ${pt}${en}
 <div class="pn">${nav(prev, "prev")}${nav(next, "next")}</div></div>`;
