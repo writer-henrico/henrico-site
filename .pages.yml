@@ -25,7 +25,7 @@ components:
       placeholder: Escolha a história
       values:
         - { name: o-quarto, label: O Quarto }
-        - { name: sapatos-vermelhos, label: Sapatos Vermelhos }
+        - { name: sapatos-vermelhos, label: Emília e os Sapatos Vermelhos }
         - { name: o-dia-que-eu-esqueci-sobre-voce, label: O dia que eu esqueci sobre você }
         - { name: inkbound, label: Inkbound }
         - { name: beneath-the-skys-veil, label: Beneath the Sky’s Veil }
@@ -67,6 +67,8 @@ content:
           - { name: story, component: historia }
           - { name: number, label: Número do capítulo, type: string, required: true, description: "Use 00 para prólogo. Ex.: 6" }
           - { name: title, label: Título do capítulo, type: string, required: true }
+          - { name: label, label: "Rótulo (opcional)", type: string, description: "Vazio mostra 'Capítulo N'. Escreva - (um traço) para não mostrar rótulo (Prólogo, Ato, Epílogo) ou um texto próprio, como Capítulo Extra." }
+          - { name: slug, label: "Endereço da página (opcional)", type: string, description: "Só para casos especiais. Vazio usa o título." }
           - { name: date, label: Data de publicação, type: date, options: { format: "yyyy-MM-dd" }, description: "Esta data decide o que aparece como atualização recente na página inicial." }
           - { name: body, label: Texto, type: rich-text, options: { format: markdown, media: false } }
 
@@ -87,6 +89,7 @@ content:
           - { name: story, component: historia }
           - { name: number, label: Número do capítulo (o mesmo do capítulo em português), type: string, required: true }
           - { name: title, label: Título em inglês, type: string, required: true }
+          - { name: label, label: "Rótulo em inglês (opcional)", type: string, description: "Vazio usa o rótulo do capítulo em português, traduzido." }
           - { name: body, label: Texto em inglês, type: rich-text, options: { format: markdown, media: false } }
 
       - name: fichas
