@@ -14,28 +14,36 @@
     "pt": "Histórias, mundos e coisas que ficaram.",
     "en": "Stories, worlds and things that stayed."
   },
+  "photo": "",
+  "ogImage": "",
   "socials": [
     {
       "name": "Instagram",
-      "url": "https://www.instagram.com/writer.henrico/"
+      "url": ""
     },
     {
-      "name": "TikTok"
+      "name": "TikTok",
+      "url": ""
     },
     {
-      "name": "Threads"
+      "name": "Threads",
+      "url": ""
     },
     {
-      "name": "X"
+      "name": "X",
+      "url": ""
     },
     {
-      "name": "Goodreads"
+      "name": "Goodreads",
+      "url": ""
     },
     {
-      "name": "Amazon"
+      "name": "Amazon",
+      "url": ""
     }
   ],
   "newsletter": {
+    "action": "",
     "field": "email"
   },
   "start": [

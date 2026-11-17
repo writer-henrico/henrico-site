@@ -90,6 +90,32 @@
   applyOv();
   panel();
 
+  /* ---- barra de progresso e tempo restante (páginas de leitura) ---- */
+  var left = $("#left"), bar = $(".prog i");
+  if (left && bar) {
+    var wpm = parseInt(left.getAttribute("data-wpm"), 10) || 230, queued = false;
+    var update = function () {
+      queued = false;
+      var lang = H.dataset.lang === "en" ? "en" : "pt";
+      var el = $$(".txt").filter(function (e) { return e.offsetParent !== null; })[0];
+      var words = parseInt(left.getAttribute("data-w-" + lang), 10) || 0;
+      if (!el || !words) { bar.style.width = "0"; left.hidden = true; return; }
+      left.hidden = false;
+      var r = el.getBoundingClientRect();
+      var p = Math.min(1, Math.max(0, (window.innerHeight - r.top) / Math.max(1, r.height)));
+      var m = words * (1 - p) / wpm, n = Math.round(m);
+      bar.style.width = (p * 100).toFixed(1) + "%";
+      left.textContent = p >= 0.985 ? (lang === "en" ? "End of chapter" : "Fim do capítulo")
+        : m < 1 ? (lang === "en" ? "Under 1 min left" : "Falta menos de 1 min")
+        : (lang === "en" ? n + " min left" : "Faltam " + n + " min");
+    };
+    var queue = function () { if (!queued) { queued = true; window.requestAnimationFrame(update); } };
+    window.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", queue);
+    $$(".lang button").forEach(function (b) { b.addEventListener("click", queue); });
+    update();
+  }
+
   /* ---- newsletter (enquanto não houver serviço ligado) ---- */
   var nf = $("#nf");
   if (nf && !nf.getAttribute("action")) {

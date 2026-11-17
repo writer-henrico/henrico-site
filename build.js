@@ -115,6 +115,7 @@ const UI = {
     nlp: "Um aviso quando houver história nova. Sem spam.", nlph: "Seu melhor e-mail", nlb: "Quero receber",
     nlsoon: "O cadastro de e-mail ainda não está ligado a um serviço.", lightMode: "Modo claro", darkMode: "Modo escuro",
     pers: "Personalizar", font: "Fonte do título", fontBody: "Fonte do texto", bg: "Fundo", accent: "Destaque", stars: "Estrelas", reset: "Restaurar",
+    rt: "{t} de leitura", rtAll: "leitura completa: {t}", chOne: "{n} capítulo", chMany: "{n} capítulos",
     nothing: "Nada por aqui ainda.", notfound: "Página não encontrada.", home: "Voltar ao início"
   },
   en: {
@@ -128,6 +129,7 @@ const UI = {
     nlp: "A heads-up when there’s a new story. No spam.", nlph: "Your best email", nlb: "Sign me up",
     nlsoon: "The email signup isn’t connected to a service yet.", lightMode: "Light mode", darkMode: "Dark mode",
     pers: "Customize", font: "Title font", fontBody: "Text font", bg: "Background", accent: "Accent", stars: "Stars", reset: "Reset",
+    rt: "{t} read", rtAll: "full read: {t}", chOne: "{n} chapter", chMany: "{n} chapters",
     nothing: "Nothing here yet.", notfound: "Page not found.", home: "Back to home"
   }
 };
@@ -225,7 +227,11 @@ const synOf = s => bi(esc(s.synopsis), esc(s.synopsis_en));
 const kindKey = s => (s.kind === "livro" ? "livros" : "oneshots");
 const kindHref = s => (s.kind === "livro" ? "livros/" : "one-shots/");
 const statusOf = s => T(s.status === "andamento" ? "andamento" : "completo");
-const minutes = s => Math.max(1, Math.round(s.words / 230));
+const WPM = 230; // palavras por minuto (leitura silenciosa); mude aqui se quiser outro ritmo
+const mins = w => Math.max(1, Math.round(w / WPM));
+const fmtMin = n => (n < 60 ? `${n} min` : `${Math.floor(n / 60)} h${n % 60 ? ` ${n % 60} min` : ""}`);
+const rtPlain = (w, lang, key = "rt") => UI[lang][key].replace("{t}", fmtMin(mins(w)));
+const rt = (w, key = "rt") => bi(esc(rtPlain(w, "pt", key)), esc(rtPlain(w, "en", key)));
 
 function socials() {
   return (site.socials || []).filter(x => x.url).map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener me">${esc(x.name)}</a>`).join("");
@@ -326,7 +332,7 @@ function homePage(stories) {
   const pickCard = ({ s, label }) => {
     const href = s.chapters.length ? chHref(s, s.chapters[0]) : s.href;
     const mins = s.kind === "oneshot" && s.chapters.length
-      ? `<p class="upnote">${bi(esc(UI.pt.minutes.replace("{n}", minutes(s))), esc(UI.en.minutes.replace("{n}", minutes(s))))}</p>` : "";
+      ? `<p class="upnote">${rt(s.words)}</p>` : "";
     return `<div class="feature pick">${cover(s)}<div>
 ${label.pt ? `<p class="tagline">${bi(esc(label.pt), esc(label.en))}</p>` : ""}<h3>${titleOf(s)}</h3><p class="sub">${genreOf(s)}, ${T(s.kind === "livro" ? "livro1" : "oneshot1")}</p>
 <p class="d">${synOf(s)}</p>${mins}<a class="btn" href="${url(href)}">${T("read")}</a></div></div>`;
@@ -351,18 +357,20 @@ function shelfPage(stories, kind) {
     const c = s.chapters[s.chapters.length - 1];
     return `<div class="row">${cover(s)}<div>
 <h3><a href="${url(s.href)}">${titleOf(s)}</a><span class="badge">${statusOf(s)}</span></h3>
-<p class="sub">${genreOf(s)}${s.chapters.length ? `, ${T("updated")} ${date2(s.updated)}` : `, ${T("soonCh")}`}</p><p>${synOf(s)}</p></div></div>`;
+<p class="sub">${genreOf(s)}${s.chapters.length ? `, ${rt(s.words)}, ${T("updated")} ${date2(s.updated)}` : `, ${T("soonCh")}`}</p><p>${synOf(s)}</p></div></div>`;
   }).join("");
   const body = `<div class="hero"><h1>${T(key)}</h1><p>${T(isBook ? "bkDesc" : "osDesc")}</p></div><div class="list">${rows || `<p class="hint">${T("nothing")}</p>`}</div>`;
   write(`${slug}/index.html`, page({ title: UI.pt[key], path: `${slug}/`, nav: slug, body }));
 }
 function storyPages(s) {
   const first = s.chapters[0];
-  const list = s.chapters.map(c => `<li><a href="${url(`${s.href}${c.slug}/`)}"><span>${T("chapter")} ${esc(c.number)}</span><b>${bi(esc(c.title), esc(c.titleEn))}</b></a></li>`).join("");
+  const list = s.chapters.map(c => `<li><a href="${url(`${s.href}${c.slug}/`)}"><span>${T("chapter")} ${esc(c.number)}</span><b>${bi(esc(c.title), esc(c.titleEn))}</b><i class="t">${fmtMin(mins(c.words))}</i></a></li>`).join("");
   const warnings = Array.isArray(s.warnings) && s.warnings.length ? `<section><h2>${T("warn")}</h2><p class="hint">${bi(esc(s.warnings.join(", ")), esc((Array.isArray(s.warnings_en) && s.warnings_en.length ? s.warnings_en : s.warnings).join(", ")))}</p></section>` : "";
+  const nCh = s.chapters.length;
+  const meta = nCh ? `<p class="meta2">${bi(esc(UI.pt[nCh === 1 ? "chOne" : "chMany"].replace("{n}", nCh)), esc(UI.en[nCh === 1 ? "chOne" : "chMany"].replace("{n}", nCh)))}, ${rt(s.words, "rtAll")}</p>` : "";
   const notes = s.notes ? `<section class="notes">${md(s.notes, s.ornament)}</section>` : "";
   const body = `<p class="crumb"><a href="${url(kindHref(s))}">${T(kindKey(s))}</a></p>
-<div class="sp">${cover(s)}<div><h1>${titleOf(s)}<span class="badge">${statusOf(s)}</span></h1><p class="sub">${genreOf(s)}</p><p class="d">${synOf(s)}</p>
+<div class="sp">${cover(s)}<div><h1>${titleOf(s)}<span class="badge">${statusOf(s)}</span></h1><p class="sub">${genreOf(s)}</p>${meta}<p class="d">${synOf(s)}</p>
 ${first ? `<a class="btn" href="${url(`${s.href}${first.slug}/`)}">${T("begin")}</a>` : `<p class="hint">${T("soonCh")}</p>`}</div></div>
 ${warnings}${notes}
 ${first ? `<section><h2>${T("toc")}</h2><ol class="chl">${list}</ol></section>` : ""}`;
@@ -374,10 +382,11 @@ ${first ? `<section><h2>${T("toc")}</h2><ol class="chl">${list}</ol></section>` 
     const pt = `<div class="txt" lang="pt">${md(c.pt.body, s.ornament)}</div>`;
     const en = c.en ? `<div class="txt" lang="en">${md(c.en.body, s.ornament)}</div>` : `<p class="note" lang="en">${esc(UI.en.noen)}</p>`;
     const caps = (s.theme || {}).caps ? ' class="caps"' : "";
-    const html = `<div class="reader"><div class="tools"><a href="${url(s.href)}">${T("back")}</a><span class="ctl">
+    const enWords = c.en ? words(c.en.body) : 0;
+    const html = `<div class="prog" aria-hidden="true"><i></i></div><div class="left" id="left" aria-hidden="true" data-wpm="${WPM}" data-w-pt="${c.words}" data-w-en="${enWords}"></div><div class="reader"><div class="tools"><a href="${url(s.href)}">${T("back")}</a><span class="ctl">
 <button type="button" data-act="smaller" aria-label="A-">A−</button><button type="button" data-act="bigger" aria-label="A+">A+</button>
 <button type="button" data-act="mode"><span class="to-light">${T("lightMode")}</span><span class="to-dark">${T("darkMode")}</span></button></span></div>
-<p class="kicker">${bi(esc(`${s.title}, capítulo ${c.number}`), esc(`${s.title_en || s.title}, chapter ${c.number}`))}</p>
+<p class="kicker">${bi(esc(`${s.title}, capítulo ${c.number}, ${rtPlain(c.words, "pt")}`), esc(`${s.title_en || s.title}, chapter ${c.number}, ${rtPlain(c.en ? enWords : c.words, "en")}`))}</p>
 <h1${caps}>${bi(esc(c.title), esc(c.titleEn))}</h1>
 ${pt}${en}
 <div class="pn">${nav(prev, "prev")}${nav(next, "next")}</div></div>`;
